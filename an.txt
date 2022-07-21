@@ -1,0 +1,51 @@
+ def convert(polarity):
+          if polarity == 'positif':
+            return 1
+          else:
+            return -1
+
+        maps['polarity'] = maps['label'].apply(convert)
+        X = maps['review']
+        y = maps['polarity']
+        maps
+
+        bow_transformer = CountVectorizer()
+        st.write(maps['review'].shape)
+        X = bow_transformer.fit_transform(maps['review'].apply(lambda X: np.str_(X)))
+
+        st.write(X.toarray())
+        st.write('Shape of sparse matrix : ', X.shape)
+        st.write('Amount of Non-Zero occurrences : ', X.nnz)
+
+        #save hasil count vector ke disk
+        filename1 = 'count_vectorized1.pkl'
+        pickle.dump(bow_transformer, open(filename1, 'wb'))
+
+        #tfid transform
+        tf_transform = TfidfTransformer(use_idf=False).fit(X)
+        X = tf_transform.transform(X)
+        st.write(X.shape)
+
+        #save to disk
+        filename1 = 'tfid_transform1.pkl'
+        pickle.dump(tf_transform, open(filename1, 'wb'))
+
+        density =(100.0 * X.nnz / (X.shape[0] * X.shape[1]))
+        st.write('Density : {}'.format((density)))
+
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3 )
+        SMOTE = SMOTE()
+        X_train_SMOTE, y_train_SMOTE = SMOTE.fit_resample(X_train, y_train)
+        nb = MultinomialNB()
+        nb.fit(X_train_SMOTE, y_train_SMOTE)
+        preds = nb.predict(X_test)
+        st.write('confusion matrix :',confusion_matrix(y_test, preds))
+        st.write('classification report : ',classification_report(y_test, preds))
+
+        from io import StringIO
+        classification = classification_report(y_test, preds)
+        s = StringIO(classification)
+        with open('classification.csv', 'w') as f:
+          for line in s:
+            f.write(line)
+        st.write('akurasi : ',accuracy_score(y_test, preds))
