@@ -1,7 +1,6 @@
 import pandas as pd
 import re
 import numpy as np
-import joblib
 import pickle
 from wordcloud import WordCloud
 import matplotlib.pyplot as plt
@@ -219,11 +218,13 @@ elif option == 'Analisis':
         df['avg_word'] = df['BERSIH'].apply(lambda x: avg_word(x))
         df[['BERSIH','avg_word']]
 
-
-
         st.write('JUMLAH KATA YANG MUNCUL')
-        freq = pd.Series(' '.join(df['BERSIH']).split()).value_counts()[:15]
+        freq = pd.Series(' '.join(df['BERSIH']).split()).value_counts()[:20]
         freq
+
+        #wordcloud
+        wc = WordCloud().fit_words(freq)
+        st.image(wc.to_array())
 
         from sklearn.feature_extraction.text import TfidfVectorizer
         tfidf = TfidfVectorizer()
@@ -281,6 +282,7 @@ elif option == 'Analisis':
         import scikitplot as skplt
         skplt.metrics.plot_confusion_matrix(y_test, y_pred, normalize=False)
         st.pyplot()
+
 
        
         
